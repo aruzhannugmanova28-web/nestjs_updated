@@ -4,7 +4,7 @@ import { Product } from './product.model';
 @Injectable()
 
 export class ProductsService {
-    products:Product[]=[];
+    private products:Product[]=[];
     insertProduct(
         title:string, 
         desc:string, 
@@ -15,5 +15,7 @@ export class ProductsService {
         this.products.push(newProduct);
         return prodId;
     }
-    
+    getProducts(){
+        return [...this.products];
+    }
 }
