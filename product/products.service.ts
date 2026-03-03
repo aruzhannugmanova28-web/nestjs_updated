@@ -6,19 +6,16 @@ import { Model } from 'mongoose';
 @Injectable()
 
 export class ProductsService {
-    private products:Product[]=[];
+    private products:Product[] = [];
 
-    constructor(@InjectModel('Product') private readnonly productModel: Model<Product>) {}
+    constructor(@InjectModel('Product') private readonly productModel: Model<Product>) {}
 
-    insertProduct(
-        title:string, 
-        desc:string, 
-        price:number,
-    ){
+    async insertProduct(title:string, desc:string, price:number,){
         const prodId= Math.random().toString();
-        const newProduct = new this.productModel(prodId, title, desc, price);
-        this.products.push(newProduct);
-        return prodId;
+        const newProduct = new this.productModel({title: title, description: desc, price: price });
+        const result = await newProduct.save();
+        console.log(result);
+        //return prodId;
     }
     getProducts(){
         return [...this.products];
@@ -31,17 +28,17 @@ export class ProductsService {
 
     updateProduct(productId: string, title:string, desc: string, price: number) {
         const [product, index] = this.findProduct(productId);
-        const updateProduct = {...product, };
+        const updatedProduct = {...product };
         if (title) {
-            updateProduct.title= title;
+            updatedProduct.title= title;
         }
         if (desc) {
-            updateProduct.description= desc;
+            updatedProduct.description= desc;
         }
         if (price) {
-            updateProduct.price= price;
+            updatedProduct.price= price;
         }
-        this.products[index] = updateProduct;
+        this.products[index]= updatedProduct as Product;
     }
     deleteProduct(prodId: string){
         const index = this.findProduct(prodId)[1];
