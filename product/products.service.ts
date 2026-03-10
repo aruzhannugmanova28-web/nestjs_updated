@@ -6,9 +6,9 @@ import { Model } from 'mongoose';
 @Injectable()
 
 export class ProductsService {
-    private products:Product[] = [];
-
-    constructor(@InjectModel('Product') private readonly productModel: Model<Product>) {}
+    constructor(
+      @InjectModel('Product') private readonly productModel: Model<Product>
+    ) {}
 
     async insertProduct(title:string, desc:string, price:number,){
         const prodId= Math.random().toString();
@@ -17,6 +17,7 @@ export class ProductsService {
         console.log(result);
         return result.id as string;
     }
+
     async getProducts(){
         const products = await this.productModel.find().exec();
         return products.map((prod) => ({id: prod.id, title: prod.title, description: prod.description, price: prod.price}));
@@ -46,15 +47,17 @@ export class ProductsService {
     updatedProduct.save();
   }
 
-    deleteProduct(prodId: string){
-        const index = this.findProduct(prodId)[1];
-        this.products.splice(index, 1);
+    async deleteProduct(prodId: string){
+        const result = await this.productModel.deleteOne({_id: prodId}).exec();
+        if (result.deletedCount === 0) {
+          throw new NotFoundException('Could not find product.');
+        }
     }
 
     private async findProduct(id: string): Promise<Product> {
         let product;
         try{
-            product = await this.productModel.findById(id);
+            product = await this.productModel.findById(id).exec();
         } catch(error){
             throw new NotFoundException('Could not find product');
         }
